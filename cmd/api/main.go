@@ -8,6 +8,7 @@ import (
 	"personal-note/internal/api"
 	"personal-note/internal/config"
 	"personal-note/internal/database"
+	"personal-note/internal/store"
 )
 
 func main() {
@@ -23,11 +24,20 @@ func main() {
 
 	defer pool.Close()
 
+	s := store.New(pool)
+
+	h := &api.ApiHandler{
+		Store:     s,
+		JWTSecret: cfg.JWTSecret,
+	}
+
 	// store := store.New(pool)
 	// id, _, _ := store.CreateUser()
 	// fmt.Println(id)
 
-	mux.HandleFunc("GET /health", api.Health)
+	mux.HandleFunc("GET /health", h.Health)
+	mux.HandleFunc("POST /api/v1/auth/register", h.Register)
+	mux.HandleFunc("POST /api/v1/auth/login", h.Login)
 
 	log.Fatal(http.ListenAndServe(":"+cfg.Port, mux))
 }
