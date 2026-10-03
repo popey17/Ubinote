@@ -1,11 +1,9 @@
 package store
 
 import (
-	"context"
-	"fmt"
+	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -25,30 +23,11 @@ func New(pool *pgxpool.Pool) *Store {
 	}
 }
 
-func (s *Store) CreateUser(ctx context.Context, email, passwordHash string) (uuid.UUID, error) {
-	var id uuid.UUID
-	err := s.Pool.QueryRow(ctx,
-		`INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id`,
-		email, passwordHash,
-	).Scan(&id)
-
-	if err != nil {
-		return uuid.Nil, err
-	}
-	return id, nil
-}
-
-func (s *Store) GetUserByEmail(ctx context.Context, email string) (*User, error) {
-	u := User{}
-
-	err := s.Pool.QueryRow(ctx,
-		`SELECT id, email, password FROM users WHERE email = $1`, email,
-	).Scan(&u.ID, &u.Email, &u.PasswordHash)
-	if err == pgx.ErrNoRows {
-		return nil, fmt.Errorf("User not Found")
-	} else if err != nil {
-		return nil, err
-	}
-
-	return &u, nil
+type Note struct {
+	ID         uuid.UUID `json:"id"`
+	User_ID    uuid.UUID `json:"user_id"`
+	Title      string    `json:"title"`
+	Body       string    `json:"body"`
+	Created_at time.Time `json:"created_at"`
+	Updated_at time.Time `json:"updated_at"`
 }
