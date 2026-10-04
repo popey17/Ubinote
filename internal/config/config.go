@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -11,6 +12,26 @@ type config struct {
 	Port        string
 	DatabaseURL string
 	JWTSecret   string
+	CorsOrigins []string
+}
+
+func parseCors(raw string) []string {
+	defaults := []string{"http://localhost:5173"}
+	if strings.TrimSpace(raw) == "" {
+		return defaults
+	}
+
+	parts := strings.Split(raw, ",")
+	origins := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if o := strings.TrimSpace(p); o != "" {
+			origins = append(origins, o)
+		}
+	}
+	if len(origins) == 0 {
+		return defaults
+	}
+	return origins
 }
 
 func Load() (*config, error) {
@@ -30,12 +51,10 @@ func Load() (*config, error) {
 		return nil, fmt.Errorf("JWT_SECRET is required")
 	}
 
-	conf := &config{
+	return &config{
 		Port:        port,
 		DatabaseURL: dbURL,
 		JWTSecret:   jwtSecret,
-	}
-
-	return conf, nil
-
+		CorsOrigins: parseCors(os.Getenv("CORS_ORIGIN")),
+	}, nil
 }

@@ -38,6 +38,7 @@ func main() {
 	mux.HandleFunc("GET /api/v1/me", h.AuthMiddleware(h.Me))
 	mux.HandleFunc("POST /api/v1/auth/register", h.Register)
 	mux.HandleFunc("POST /api/v1/auth/login", h.Login)
+	mux.HandleFunc("POST /api/v1/auth/logout", h.Logout)
 
 	// note
 	mux.HandleFunc("POST /api/v1/notes", h.AuthMiddleware(h.CreateNote))
@@ -46,5 +47,6 @@ func main() {
 	mux.HandleFunc("PUT /api/v1/notes/{id}", h.AuthMiddleware(h.UpdateNote))
 	mux.HandleFunc("DELETE /api/v1/notes/{id}", h.AuthMiddleware(h.DeleteNote))
 
-	log.Fatal(http.ListenAndServe(":"+cfg.Port, mux))
+	handler := h.Cors(mux, cfg.CorsOrigins)
+	log.Fatal(http.ListenAndServe(":"+cfg.Port, handler))
 }

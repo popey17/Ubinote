@@ -92,6 +92,8 @@ func (h *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	setAuthCookie(w, token)
+
 	response := LoginResponse{
 		Token: token,
 	}
@@ -99,6 +101,11 @@ func (h *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 
+}
+
+func (h *ApiHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	clearAuthCookie(w)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *ApiHandler) Me(w http.ResponseWriter, r *http.Request) {
