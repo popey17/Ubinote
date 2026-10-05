@@ -30,6 +30,7 @@ func main() {
 	h := &api.ApiHandler{
 		Store:     s,
 		JWTSecret: cfg.JWTSecret,
+		Env:       cfg.Env,
 	}
 
 	mux.HandleFunc("GET /health", h.Health)

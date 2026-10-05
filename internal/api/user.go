@@ -92,7 +92,7 @@ func (h *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	setAuthCookie(w, token)
+	setAuthCookie(w, token, h.Env)
 
 	response := LoginResponse{
 		Token: token,
@@ -104,7 +104,7 @@ func (h *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ApiHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	clearAuthCookie(w)
+	clearAuthCookie(w, h.Env)
 	w.WriteHeader(http.StatusNoContent)
 }
 

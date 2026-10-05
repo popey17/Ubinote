@@ -13,6 +13,7 @@ type config struct {
 	DatabaseURL string
 	JWTSecret   string
 	CorsOrigins []string
+	Env         string
 }
 
 func parseCors(raw string) []string {
@@ -43,6 +44,7 @@ func Load() (*config, error) {
 	}
 	dbURL := os.Getenv("DB_URL")
 	jwtSecret := os.Getenv("JWT_SECRET")
+	env := os.Getenv("ENVIRONMENT")
 
 	if dbURL == "" {
 		return nil, fmt.Errorf("DB_URL is required")
@@ -51,10 +53,15 @@ func Load() (*config, error) {
 		return nil, fmt.Errorf("JWT_SECRET is required")
 	}
 
+	if env == "" {
+		return nil, fmt.Errorf("ENVIRONMENT is required")
+	}
+
 	return &config{
 		Port:        port,
 		DatabaseURL: dbURL,
 		JWTSecret:   jwtSecret,
 		CorsOrigins: parseCors(os.Getenv("CORS_ORIGIN")),
+		Env:         env,
 	}, nil
 }

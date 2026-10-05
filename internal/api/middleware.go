@@ -20,7 +20,7 @@ func (h *ApiHandler) AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		id, err := auth.ValidateToken(token, h.JWTSecret)
 		if err != nil {
-			clearAuthCookie(w)
+			clearAuthCookie(w, h.Env)
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
@@ -53,26 +53,42 @@ func extractToken(r *http.Request) (string, error) {
 	return cookie.Value, nil
 }
 
-func setAuthCookie(w http.ResponseWriter, token string) {
+func setAuthCookie(w http.ResponseWriter, token string, env string) {
+	sameSite := http.SameSiteLaxMode
+	secure := false
+
+	if env == "prod" {
+		sameSite = http.SameSiteNoneMode
+		secure = true
+	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     authCookieName,
 		Value:    token,
 		Path:     "/",
 		MaxAge:   86400,
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   false,
+		SameSite: sameSite,
+		Secure:   secure,
 	})
 }
 
-func clearAuthCookie(w http.ResponseWriter) {
+func clearAuthCookie(w http.ResponseWriter, env string) {
+	sameSite := http.SameSiteLaxMode
+	secure := false
+
+	if env == "prod" {
+		sameSite = http.SameSiteNoneMode
+		secure = true
+	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:     authCookieName,
 		Value:    "",
 		Path:     "/",
 		MaxAge:   -1,
 		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   false,
+		SameSite: sameSite,
+		Secure:   secure,
 	})
 }

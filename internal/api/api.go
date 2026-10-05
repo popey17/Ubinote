@@ -15,6 +15,7 @@ const userIDKey contextKey = "userID"
 type ApiHandler struct {
 	Store     *store.Store
 	JWTSecret string
+	Env       string
 }
 
 func (h *ApiHandler) Health(w http.ResponseWriter, r *http.Request) {
