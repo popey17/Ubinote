@@ -1,2 +1,13 @@
 .env
 tmp/
+
+/api
+*.exe
+bin/
+dist/
+
+*.db
+*.log
+*.sqlite
+*.sqlite3
+
